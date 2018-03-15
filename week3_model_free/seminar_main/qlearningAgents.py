@@ -7,7 +7,9 @@ from learningAgents import ReinforcementAgent
 from featureExtractors import *
 
 import random,util,math
-from collections import defaultdict
+from collections import defaultdict\
+
+import numpy as np
 
 class QLearningAgent(ReinforcementAgent):
   """
@@ -60,10 +62,7 @@ class QLearningAgent(ReinforcementAgent):
     if len(possibleActions) == 0:
     	return 0.0
 
-    "*** YOUR CODE HERE ***"
-    raise NotImplementedError
-
-    return 0.
+    return max([self.getQValue(state, action) for action in possibleActions])
     
   def getPolicy(self, state):
     """
@@ -76,12 +75,15 @@ class QLearningAgent(ReinforcementAgent):
     if len(possibleActions) == 0:
     	return None
     
-    best_action = None
+    # best_action = None
+    # maxQ = -9999999
+    #
+    # for i,q in enumerate([self._qValues[state][action] for action in possibleActions]):
+    #   if q > maxQ:
+    #     maxQ = 1
+    #     best_action = possibleActions[i]
 
-    "*** YOUR CODE HERE ***"
-    raise NotImplementedError
-
-    return best_action
+    return possibleActions[np.argmax(np.array([self.getQValue(state, action) for action in possibleActions]))]
 
   def getAction(self, state):
     """
@@ -101,15 +103,15 @@ class QLearningAgent(ReinforcementAgent):
     
     #If there are no legal actions, return None
     if len(possibleActions) == 0:
-    	return None
+      return None
 
     #agent parameters:
     epsilon = self.epsilon
 
-    "*** YOUR CODE HERE ***"
-    raise NotImplementedError    
-
-    return action
+    if np.random.random() < epsilon:
+      return np.random.choice(possibleActions, p=np.ones(len(possibleActions)) / len(possibleActions))
+    else:
+      return self.getPolicy(state)
 
   def update(self, state, action, nextState, reward):
     """
@@ -123,14 +125,11 @@ class QLearningAgent(ReinforcementAgent):
     #agent parameters
     gamma = self.discount
     learning_rate = self.alpha
-    
-    "*** YOUR CODE HERE ***"
-    raise NotImplementedError
-    
-    reference_qvalue = PleaseImplementMe
-    updated_qvalue = PleaseImplementMe
 
-    self.setQValue(PleaseImplementMe,PleaseImplementMe,updated_qvalue)
+    reference_qvalue = reward + gamma * self.getValue(nextState)
+    updated_qvalue = self.getQValue(state, action) * (1 - learning_rate) + reference_qvalue * learning_rate
+
+    self.setQValue(state,action,updated_qvalue)
 
 
 #---------------------#end of your code#---------------------#
